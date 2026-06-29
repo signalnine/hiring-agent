@@ -2,10 +2,11 @@
 Utility functions for LLM providers.
 """
 
+import re
 import logging
 from typing import Any, Dict, Optional
-from models import ModelProvider, OllamaProvider, GeminiProvider
-from prompt import MODEL_PROVIDER_MAPPING, GEMINI_API_KEY
+from models import ModelProvider, OllamaProvider, GeminiProvider, AnthropicProvider
+from prompt import MODEL_PROVIDER_MAPPING, GEMINI_API_KEY, ANTHROPIC_API_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +35,13 @@ def extract_json_from_response(response_text: str) -> str:
     # Remove trailing ``` if present
     if response_text.endswith("```"):
         response_text = response_text[:-3]
+
+    # Strip trailing commas before a closing brace/bracket. LLMs occasionally
+    # emit `{"a": 1,}` or `[1, 2,]`, which is invalid JSON and crashes
+    # json.loads downstream. Safe for our payloads (prose evidence strings don't
+    # contain a comma immediately followed by a closing brace/bracket).
+    response_text = re.sub(r",(\s*[}\]])", r"\1", response_text)
+
     return response_text
 
 
@@ -49,9 +57,14 @@ def initialize_llm_provider(model_name: str) -> Any:
     """
     # Default to Ollama provider
     provider = OllamaProvider()
-    # If using Gemini and API key is available, use Gemini provider
     model_provider = MODEL_PROVIDER_MAPPING.get(model_name, ModelProvider.OLLAMA)
-    if model_provider == ModelProvider.GEMINI:
+    if model_provider == ModelProvider.ANTHROPIC:
+        if not ANTHROPIC_API_KEY:
+            logger.warning("⚠️ Anthropic API key not found. Falling back to Ollama.")
+        else:
+            logger.info(f"🔄 Using Anthropic API provider with model {model_name}")
+            provider = AnthropicProvider(api_key=ANTHROPIC_API_KEY)
+    elif model_provider == ModelProvider.GEMINI:
         if not GEMINI_API_KEY:
             logger.warning("⚠️ Gemini API key not found. Falling back to Ollama.")
         else:

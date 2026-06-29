@@ -8,6 +8,7 @@ class ModelProvider(Enum):
 
     OLLAMA = "ollama"
     GEMINI = "gemini"
+    ANTHROPIC = "anthropic"
 
 
 @runtime_checkable
@@ -19,7 +20,7 @@ class LLMProvider(Protocol):
         model: str,
         messages: List[Dict[str, str]],
         options: Dict[str, Any] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """Send a chat request to the LLM provider."""
         ...
@@ -281,7 +282,7 @@ class OllamaProvider:
         model: str,
         messages: List[Dict[str, str]],
         options: Dict[str, Any] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """Send a chat request to Ollama."""
 
@@ -324,7 +325,7 @@ class GeminiProvider:
         model: str,
         messages: List[Dict[str, str]],
         options: Dict[str, Any] = None,
-        **kwargs
+        **kwargs,
     ) -> Dict[str, Any]:
         """Send a chat request to Google Gemini API."""
         import re
@@ -375,7 +376,7 @@ class GeminiProvider:
                 api_hint = float(match.group(1)) if match else None
 
                 # Exponential backoff: BASE_DELAY * 2^attempt, capped at MAX_DELAY
-                exp_delay = min(BASE_DELAY * (2 ** attempt), MAX_DELAY)
+                exp_delay = min(BASE_DELAY * (2**attempt), MAX_DELAY)
 
                 # Prefer the API hint when it is shorter than our computed delay
                 delay = api_hint if (api_hint and api_hint < exp_delay) else exp_delay
@@ -389,3 +390,68 @@ class GeminiProvider:
                     f"Retrying in {sleep_time}s..."
                 )
                 time.sleep(sleep_time)
+
+
+class AnthropicProvider:
+    """Anthropic (Claude) API provider implementation."""
+
+    # Generous default so full resume/evaluation JSON is never truncated.
+    # Stays well under the SDK's non-streaming HTTP timeout guard.
+    MAX_TOKENS = 16000
+
+    def __init__(self, api_key: str):
+        import anthropic
+
+        # The SDK auto-retries 429/5xx with exponential backoff.
+        self.client = anthropic.Anthropic(api_key=api_key)
+
+    def chat(
+        self,
+        model: str,
+        messages: List[Dict[str, str]],
+        options: Dict[str, Any] = None,
+        **kwargs,
+    ) -> Dict[str, Any]:
+        """Send a chat request to the Anthropic Messages API.
+
+        Mirrors the Ollama/Gemini contract: returns
+        ``{"message": {"role": "assistant", "content": <text>}}``.
+
+        Notes:
+        - Anthropic takes the system prompt as a top-level ``system`` argument,
+          not as a message with ``role: "system"``. Any system-role messages are
+          collected out of ``messages`` and joined.
+        - ``temperature`` / ``top_p`` from ``options`` are intentionally ignored:
+          they are rejected (HTTP 400) on Opus 4.7+ models.
+        - Structured output (``format``) is handled the same way as Gemini —
+          the prompt templates already instruct strict JSON, and the response is
+          cleaned downstream by ``extract_json_from_response``.
+        """
+
+        # Split out system-role messages; Anthropic wants them top-level.
+        system_parts = []
+        anthropic_messages = []
+        for msg in messages:
+            role = msg.get("role")
+            content = msg.get("content", "")
+            if role == "system":
+                system_parts.append(content)
+            elif role == "assistant" or role == "model":
+                anthropic_messages.append({"role": "assistant", "content": content})
+            else:
+                anthropic_messages.append({"role": "user", "content": content})
+
+        create_params = {
+            "model": model,
+            "max_tokens": self.MAX_TOKENS,
+            "messages": anthropic_messages,
+        }
+        if system_parts:
+            create_params["system"] = "\n\n".join(system_parts)
+
+        response = self.client.messages.create(**create_params)
+
+        # Concatenate text blocks into a single string for compatibility.
+        text = "".join(block.text for block in response.content if block.type == "text")
+
+        return {"message": {"role": "assistant", "content": text}}

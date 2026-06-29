@@ -904,6 +904,25 @@ def convert_github_data_to_text(github_data: dict) -> str:
         github_text += f"- Account Created: {profile.get('created_at', 'N/A')}\n"
         github_text += f"- Last Updated: {profile.get('updated_at', 'N/A')}\n"
 
+    pr = github_data.get("pr_contributions")
+    if pr:
+        github_text += "\nOpen Source Contributions (merged pull requests):\n"
+        github_text += (
+            f"- Total merged PRs authored (anywhere): "
+            f"{pr.get('total_merged_prs', 'N/A')}\n"
+        )
+        github_text += (
+            f"- Merged PRs to repos NOT owned by the candidate "
+            f"(true upstream contributions): {pr.get('upstream_merged_prs', 'N/A')}\n"
+        )
+        targets = pr.get("top_target_repos") or []
+        if targets:
+            github_text += "- Upstream repositories contributed to (with stars):\n"
+            for t in targets:
+                stars = t.get("stars")
+                stars_str = f"{stars}★" if stars is not None else "stars N/A"
+                github_text += f"    • {t.get('repo')} ({stars_str})\n"
+
     if "projects" in github_data:
         projects = github_data["projects"]
         github_text += f"\nGitHub Projects ({len(projects)} total):\n"
@@ -916,6 +935,12 @@ def convert_github_data_to_text(github_data: dict) -> str:
                 github_text += f"   Stars: {details.get('stars', 'N/A')}\n"
                 github_text += f"   Forks: {details.get('forks', 'N/A')}\n"
                 github_text += f"   Language: {details.get('language', 'N/A')}\n"
+            readme = project.get("readme")
+            if readme:
+                indented = "\n".join(f"     {line}" for line in readme.splitlines())
+                github_text += f"   README:\n{indented}\n"
+            else:
+                github_text += f"   README: (none found)\n"
             github_text += "\n"
 
     return github_text

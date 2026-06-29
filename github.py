@@ -1,9 +1,11 @@
 import os
 import re
 import json
+import base64
 import requests
 import datetime
 import time
+from urllib.parse import quote
 from pathlib import Path
 
 from typing import Dict, List, Optional, Any
@@ -182,6 +184,120 @@ def fetch_github_profile(github_url: str) -> Optional[GitHubProfile]:
     except Exception as e:
         print(f"Unexpected error fetching GitHub profile: {e}")
         return None
+
+
+def fetch_repo_readme(
+    owner: str, repo_name: str, max_chars: int = 4000
+) -> Optional[str]:
+    """Fetch and decode a repository's README via the GitHub API.
+
+    Returns the decoded text (truncated to ``max_chars``), or None when the repo
+    has no README or the request fails. Routes through ``_fetch_github_api`` so
+    the call is cached, token-authenticated, and rate-limit aware.
+    """
+    api_url = f"https://api.github.com/repos/{owner}/{repo_name}/readme"
+    try:
+        status_code, data = _fetch_github_api(api_url)
+    except Exception as e:
+        logger.warning(f"⚠️ Failed to fetch README for {owner}/{repo_name}: {e}")
+        return None
+
+    if status_code != 200 or not isinstance(data, dict) or not data.get("content"):
+        return None
+
+    try:
+        if data.get("encoding") == "base64":
+            text = base64.b64decode(data["content"]).decode("utf-8", errors="replace")
+        else:
+            text = data["content"]
+    except Exception as e:
+        logger.warning(f"⚠️ Failed to decode README for {owner}/{repo_name}: {e}")
+        return None
+
+    text = text.strip()
+    if len(text) > max_chars:
+        text = text[:max_chars] + "\n…[README truncated]"
+    return text
+
+
+def attach_project_readmes(projects: List[Dict], owner: str) -> None:
+    """Enrich selected projects in place with decoded README text.
+
+    Called only on the small set of LLM-selected top projects, so it adds at
+    most a handful of GitHub API calls (each cached for later runs).
+    """
+    if not owner:
+        return
+    for project in projects or []:
+        name = project.get("name")
+        if not name:
+            continue
+        readme = fetch_repo_readme(owner, name)
+        if readme:
+            project["readme"] = readme
+            print(f"   📄 README fetched for {name} ({len(readme)} chars)")
+
+
+def fetch_merged_pr_stats(username: str, max_targets: int = 8) -> Optional[Dict]:
+    """Detect real upstream open-source contributions via the GitHub Search API.
+
+    The rest of the pipeline only inspects the candidate's own repos, so merged
+    pull requests into *other people's* projects — the single strongest
+    open-source signal — are otherwise invisible. This queries:
+      - total merged PRs authored by the user (anywhere)
+      - merged PRs to repos the user does NOT own (true upstream contributions)
+    and looks up the star count of the target repos so popularity (which the
+    rubric rewards) can be judged.
+    """
+
+    def _search_count_and_items(query):
+        api_url = f"https://api.github.com/search/issues?q={quote(query)}&per_page=30"
+        try:
+            status_code, data = _fetch_github_api(api_url)
+        except Exception as e:
+            logger.warning(f"⚠️ Merged-PR search failed for '{query}': {e}")
+            return 0, []
+        if status_code != 200 or not isinstance(data, dict):
+            return 0, []
+        return data.get("total_count", 0), data.get("items", []) or []
+
+    total_merged, _ = _search_count_and_items(f"author:{username} type:pr is:merged")
+    upstream_merged, items = _search_count_and_items(
+        f"author:{username} type:pr is:merged -user:{username}"
+    )
+
+    # Resolve distinct target repos and their star counts (popularity signal).
+    target_repos = []
+    seen = set()
+    for item in items:
+        full_name = item.get("repository_url", "").split("/repos/")[-1]
+        if not full_name or full_name in seen:
+            continue
+        seen.add(full_name)
+        if len(target_repos) >= max_targets:
+            break
+        stars = None
+        try:
+            status_code, repo_data = _fetch_github_api(
+                f"https://api.github.com/repos/{full_name}"
+            )
+            if status_code == 200 and isinstance(repo_data, dict):
+                stars = repo_data.get("stargazers_count")
+        except Exception:
+            pass
+        target_repos.append({"repo": full_name, "stars": stars})
+
+    target_repos.sort(key=lambda t: (t["stars"] or 0), reverse=True)
+
+    print(
+        f"🔀 Merged PRs: {total_merged} total, "
+        f"{upstream_merged} upstream (to repos not owned by {username})"
+    )
+    return {
+        "total_merged_prs": total_merged,
+        "upstream_merged_prs": upstream_merged,
+        "top_target_repos": target_repos,
+    }
 
 
 def fetch_contributions_count(owner: str, contributors_data):
@@ -472,10 +588,22 @@ def fetch_and_display_github_info(github_url: str) -> Dict:
     profile_json = generate_profile_json(github_profile)
     projects_json = generate_projects_json(projects)
 
+    # Enrich the selected top projects with README content so the evaluator can
+    # judge documentation/complexity from real docs, not just the (often empty)
+    # one-line GitHub description field.
+    print("📄 Fetching READMEs for selected projects...")
+    username = extract_github_username(github_url)
+    attach_project_readmes(projects_json, username)
+
+    # Detect upstream merged-PR contributions (invisible to the per-repo crawl).
+    print("🔀 Checking merged pull requests to external repos...")
+    pr_contributions = fetch_merged_pr_stats(username) if username else None
+
     result = {
         "profile": profile_json,
         "projects": projects_json,
         "total_projects": len(projects_json),
+        "pr_contributions": pr_contributions,
     }
 
     return result

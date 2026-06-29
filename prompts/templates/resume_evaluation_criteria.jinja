@@ -1,6 +1,6 @@
-You are evaluating a resume for a Software Intern position at HackerRank. Analyze the resume data and provide scores based on these criteria:
+You are evaluating a resume for a **Senior Staff / Principal Engineer** position. These are senior individual-contributor roles where the bar is scope of impact, technical depth, and influence across an organization or the broader industry — NOT early-career signals. Score the candidate against the criteria below.
 
-**MANDATORY: You MUST always fill ALL FOUR categories: open_source, self_projects, production, technical_skills.**
+**MANDATORY: You MUST always fill ALL FOUR categories: production, technical_skills, self_projects, open_source.** (The JSON field names are fixed; their meaning for this role is defined below.)
 
 ## CRITICAL FAIRNESS REQUIREMENTS
 **SCORES MUST NEVER DEPEND ON:**
@@ -8,171 +8,98 @@ You are evaluating a resume for a Software Intern position at HackerRank. Analyz
 - College, university, or educational institution name
 - CGPA, GPA, or academic grades
 - City, location, or geographical information
-- Any personal characteristics unrelated to technical skills and experience
+- Years of experience as a raw number, age, or career gaps
+- Any personal characteristics unrelated to technical skills and demonstrated impact
 
 **EVALUATION MUST BE BASED ONLY ON:**
-- Technical skills and programming languages
-- Project complexity and real-world impact
-- Open source contributions and community involvement
-- Work experience and production-level contributions
-- Technical communication and documentation abilities
-- Problem-solving and algorithmic thinking demonstrated in projects
+- Scope, scale, and measurable impact of production work
+- Technical depth, systems-design judgment, and breadth
+- Complexity and engineering rigor of projects and systems built
+- Genuine technical influence (upstream open source, talks, writing, standards, mentorship)
 
-## PROGRAM DISTINCTIONS
-- "Google Summer of Code (GSoC)" and "Girl Script Summer of Code" are COMPLETELY DIFFERENT programs
-- NEVER use "GSoC" as shorthand for "Girl Script Summer of Code"
-- When you see "Girl Script Summer of Code" in the resume, refer to it as "Girl Script Summer of Code"
-- When you see "Google Summer of Code" in the resume, refer to it as "Google Summer of Code (GSoC)"
-
-## ANALYSIS INSTRUCTIONS
-- Analyze the structured resume data (basics, work, volunteer, projects, skills, etc.)
-- Use GitHub data (if provided in === GITHUB DATA === section) as additional context
-- Use blog data (if provided in === BLOG DATA === section) for technical communication assessment
+## ROLE CONTEXT — what "senior" means here
+At the Staff/Principal level, evaluate for: ownership of large-scale or business-critical systems; technical leadership that multiplies the output of others; sound architecture and trade-off judgment; measurable outcomes (reliability, cost, performance, revenue, velocity); and influence beyond the immediate team. Early-career markers (GSoC, Hacktoberfest, coursework, tutorial projects, "first job" framing) are NOT relevant and must NOT drive scores up or down.
 
 ## SCORING CRITERIA
 
-### Open Source (0-35 points)
-**HIGH SCORES (25-35 points):**
-- Contributions to popular open source projects (1000+ stars)
-- Significant contributions to well-known projects
-- Google Summer of Code (GSoC) participation
-- Substantial community involvement
+### Scope & Production Impact (0-40 points) — JSON field: `production`
+The dominant axis for this role. Assess the `work` section for scale, ownership, and measurable impact.
+- **HIGH (30-40):** Owned or led large-scale, business-critical systems (e.g. fleet/cluster/platform-scale infrastructure, high-traffic services, company-defining products). Drove quantified outcomes (MTTR/MTBF, cost, latency, throughput, revenue, adoption). Set technical direction across multiple teams or an org. Sustained senior-level scope across roles.
+- **MEDIUM (18-29):** Senior ownership of significant systems or a major component; some quantified impact; led projects or small teams.
+- **LOW (6-17):** Solid engineering contributions but limited evidence of scope, ownership, or measurable impact at a senior level.
+- **VERY LOW (0-5):** No production experience evident, or experience far below the seniority bar with no demonstrated impact.
+- Credit founding / early-stage (first ~10-20 eng) and 0-to-1 system building as strong scope signals.
+- Reward *measurable* outcomes over title inflation; a quantified result outweighs a senior title with no evidence.
 
-**MEDIUM SCORES (15-24 points):**
-- Contributions to smaller open source projects
-- Active GitHub presence with meaningful contributions to other repositories
-- Participation in open source programs
+### Technical Depth & Breadth (0-25 points) — JSON field: `technical_skills`
+Assess depth of expertise and systems-design judgment from `skills`, `work`, projects, and any GitHub/blog evidence.
+- **HIGH (18-25):** Deep expertise in one or more demanding domains (distributed systems, infra/SRE at scale, ML systems, compilers, security, etc.) AND broad command across the stack. Evidence of architecture and trade-off judgment, not just tool familiarity.
+- **MEDIUM (11-17):** Strong, broad technical skill set with some demonstrated depth.
+- **LOW (1-10):** Skills listed but thin evidence of depth or design judgment.
+- Validate claimed skills against what the work and projects actually demonstrate. Discount unsubstantiated keyword lists.
 
-**LOW SCORES (5-10 points):**
-- Only personal GitHub repositories with no contributions to other projects
-- Minimal open source activity
-- Basic GitHub presence
-- **CRITICAL**: Hacktoberfest participation alone (without evidence of contributions to significant projects) should receive 3-5 points maximum
+### Engineering Projects & Systems Design (0-20 points) — JSON field: `self_projects`
+Assess personal/side projects and systems built (the `projects` section and GitHub data) for engineering sophistication — at this level, as evidence of how the person builds when given a blank slate.
+- **HIGH (14-20):** Technically sophisticated, original systems: non-trivial architecture, real engineering rigor (testing, CI, benchmarking, distributed/multi-component designs), genuine problem-solving. READMEs and code reflect senior judgment.
+- **MEDIUM (8-13):** Solid projects of moderate complexity with reasonable engineering practices.
+- **LOW (1-7):** Simple or unfinished projects with little architectural depth.
+- **ZERO (0):** No projects, or only trivial demos.
+- Judge from README / documentation content and architecture, not star counts. Absence of side projects is only a mild signal at this level if production scope is strong — do not over-penalize.
 
-**VERY LOW SCORES (0-4 points):**
-- No GitHub presence
-- Only very basic personal repositories
-- Repositories that are clearly tutorial-based with no community involvement
-
-**CRITICAL RULES:**
-- Having personal GitHub repositories does NOT constitute open source contribution
-- True open source contribution means contributing to OTHER people's projects
-- When GitHub data shows all projects are 'self_project' type, open source score MUST be 10 points or less
-
-### Self Projects (0-30 points)
-**HIGH SCORES (20-30 points):**
-- Complex projects with real-world impact
-- Advanced architecture, multiple technologies
-- User adoption or contributions to popular open source projects
-
-**MEDIUM SCORES (10-19 points):**
-- Projects with some complexity, good documentation
-- Multiple features or moderate technical challenge
-
-**LOW SCORES (1-9 points):**
-- Simple tutorial projects (todo lists, calculators, basic CRUD apps, weather apps, note-taking apps, recipe apps, exercise apps)
-- Basic sentiment analysis using standard libraries (NLTK, scikit-learn)
-- Classroom assignments or projects with minimal technical complexity
-
-**ZERO SCORES (0 points):**
-- No projects or only extremely basic projects that demonstrate no technical skills
-
-**PROJECT LINK REQUIREMENTS:**
-- **NO LINKS**: Projects without URLs, GitHub links, or live demos should receive 30-50% lower scores
-- **INACTIVE LINKS**: Projects with broken links should receive 20-30% lower scores
-- **LIVE DEMO BONUS**: Projects with working live demos should receive 10-20% higher scores
-
-### Production (0-25 points)
-- Analyze the 'work' and 'volunteer' sections for real-world, internship, or production experience
-- **SPECIAL CONSIDERATION**: Give extra points for founder roles, co-founder positions, or early-stage engineer roles (first 10-20 employees) at startups
-
-### Technical Skills (0-10 points)
-- Analyze the 'skills', 'languages', and evidence of technical breadth or problem-solving in projects, work, or competitions
-
-## PROJECT COMPLEXITY ASSESSMENT
-
-**Simple/Basic Projects (Low Impact):**
-- Todo list applications, calculators, basic CRUD applications
-- Weather apps using public APIs, note-taking applications
-- Simple portfolio websites, basic form applications
-- "Hello World" applications, classroom assignment projects
-- Tutorial-based projects, recipe sharing applications
-- Exercise/health apps using public APIs
-- Basic sentiment analysis using standard libraries
-- Simple e-commerce applications, basic social media clones
-
-**Complex/Advanced Projects (High Impact):**
-- Full-stack applications with multiple features
-- Projects with user authentication and databases
-- Machine learning or AI applications
-- Real-time applications (chat, streaming, etc.)
-- Mobile applications with native features
-- Projects with microservices architecture
-- Contributions to popular open source projects
-- Projects with significant user adoption
-- Projects solving real-world problems
-- Projects demonstrating advanced algorithms or data structures
+### Open Source & Technical Influence (0-15 points) — JSON field: `open_source`
+Assess influence beyond the candidate's own employer: genuine upstream contributions, maintainership, talks, writing, and community standing.
+- **HIGH (11-15):** Maintainer or substantial contributor to widely-used projects, OR a strong record of merged upstream PRs (especially to popular/high-star projects), OR recognized talks/publications/standards work.
+- **MEDIUM (6-10):** A meaningful set of merged upstream contributions to other people's repositories, or notable technical writing/speaking.
+- **LOW (1-5):** Mostly personal repositories with limited external contribution or influence.
+- **VERY LOW (0):** No external open source or community footprint.
+- Use the GitHub data: **merged PRs to repositories the candidate does NOT own are genuine upstream contributions** — weight them, and weight contributions to high-star projects more. Personal repositories alone are NOT upstream contribution (they count under Engineering Projects instead). Do NOT treat the *absence* of open source as disqualifying — it caps this single category, nothing more.
 
 ## BONUS POINTS (Maximum total: 20 points)
-- +5 points for Google Summer of Code (GSoC) participation
-- +3 points for Girl Script Summer of Code participation
-- +3-5 points for startup founder/co-founder experience
-- +2-3 points for early-stage engineer experience (first 10-20 employees at a startup)
-- +2 points for portfolio website (GitHub URL in basics.url)
-- +1 point for LinkedIn profile
-- +1-3 points for high-quality technical blogs (if blog data provided)
-
-**CRITICAL**: The total bonus points cannot exceed 20 points under any circumstances.
+Award for senior-level signals of influence and initiative:
+- +3-5 for maintainership of a widely-used open source project
+- +2-4 for conference talks, published papers, patents, or recognized standards/spec work
+- +2-4 for founder / co-founder / early-stage (first ~10-20 eng) leadership
+- +1-3 for high-quality technical writing/blog (if blog data provided)
+- +1-3 for genuine upstream open source contributions to high-star projects
+- +1 for a maintained portfolio / technical site
+**The total bonus cannot exceed 20 points.**
 
 ## DEDUCTIONS
-**For Simple Projects:**
-- -2 to -5 points if resume contains only simple tutorial projects
-- -1 to -3 points for each simple project beyond the first one
-- -1 point for projects with generic names like "Calculator", "Todo App", "Weather App"
-- -2 points if all projects are classroom assignments or tutorial-based
-
-**For Projects Without Links:**
-- -3 to -5 points for each project without any GitHub link, live demo, or active URL
-- -2 to -3 points for each project with only GitHub link but no live demo
-- -1 to -2 points for each project with broken or inactive links
-
-**CRITICAL ENFORCEMENT:**
-- When GitHub data shows all projects are 'self_project' type, apply 3-5 point deductions for lack of true open source contributions
-- For candidates with only personal GitHub repositories, open source score should NEVER exceed 10 points
-- For candidates with only tutorial-based projects, self_projects score should NEVER exceed 15 points
+Apply sparingly and only for substantive concerns at this level:
+- -2 to -5 for senior/principal *titles* with no evidence of corresponding scope, ownership, or measurable impact
+- -2 to -4 for skill claims clearly unsupported by any work or project evidence
+- -1 to -3 for projects presented as significant that are actually trivial or non-functional
+Do NOT deduct for: missing live demos, absence of open source, lack of student programs, or project count. These are not senior-level concerns.
 
 ## CRITICAL REQUIREMENTS
-1. You MUST respond with ONLY the JSON structure below - no summary, no other fields
-2. You MUST fill ALL FOUR score categories: open_source, self_projects, production, technical_skills
-3. You MUST provide evidence for each score
-4. You MUST NOT add any other fields like "summary", "skills", "experience", etc.
-5. You MUST NOT change the field names or structure
+1. Respond with ONLY the JSON structure below — no summary, no extra fields.
+2. Fill ALL FOUR score categories with the maxes shown.
+3. Provide concrete, evidence-based reasoning for each score.
+4. Do NOT change field names or structure.
 
 **IMPORTANT LIST CONSTRAINTS:**
-- key_strengths: Provide 1-5 items (maximum 5 key strengths)
-- areas_for_improvement: Provide 1-3 items (maximum 3 areas for improvement)
+- key_strengths: 1-5 items
+- areas_for_improvement: 1-3 items
 
 **IMPORTANT SCORE CONSTRAINTS:**
-- Evidence fields cannot be empty string
-- All category scores must be >= 0 (cannot be negative)
-- **CATEGORY SCORE LIMITS** (CANNOT be exceeded under any circumstances):
-  - open_source: 0-35 points (maximum 35)
-  - self_projects: 0-30 points (maximum 30)
-  - production: 0-25 points (maximum 25)
-  - technical_skills: 0-10 points (maximum 10)
-- Bonus points total must be <= 20 (maximum 20 points)
-- **OVERALL SCORE LIMIT**: The total score (categories + bonus - deductions) cannot exceed 120 points
+- Evidence fields cannot be empty
+- All category scores must be >= 0
+- **CATEGORY SCORE LIMITS** (cannot be exceeded):
+  - production (Scope & Production Impact): 0-40
+  - technical_skills (Technical Depth & Breadth): 0-25
+  - self_projects (Engineering Projects & Systems Design): 0-20
+  - open_source (Open Source & Technical Influence): 0-15
+- Bonus points total must be <= 20
+- **OVERALL SCORE LIMIT**: total (categories + bonus - deductions) cannot exceed 120
 
-**DO NOT RETURN A RESUME SUMMARY. RETURN ONLY THE SCORING EVALUATION IN THE SPECIFIED JSON FORMAT.**
-
-Analyze the following resume and provide a JSON response with this EXACT structure (all fields are required):
+**RETURN ONLY THE SCORING EVALUATION IN THIS EXACT JSON STRUCTURE:**
 
 {
     "scores": {
-        "open_source": {"score": 0, "max": 35, "evidence": "string"},
-        "self_projects": {"score": 0, "max": 30, "evidence": "string"},
-        "production": {"score": 0, "max": 25, "evidence": "string"},
-        "technical_skills": {"score": 0, "max": 10, "evidence": "string"}
+        "open_source": {"score": 0, "max": 15, "evidence": "string"},
+        "self_projects": {"score": 0, "max": 20, "evidence": "string"},
+        "production": {"score": 0, "max": 40, "evidence": "string"},
+        "technical_skills": {"score": 0, "max": 25, "evidence": "string"}
     },
     "bonus_points": {"total": 0, "breakdown": "string"},
     "deductions": {"total": 0, "reasons": "string"},

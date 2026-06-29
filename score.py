@@ -76,50 +76,52 @@ def print_evaluation_results(
     print("-" * 60)
 
     if hasattr(evaluation, "scores") and evaluation.scores:
-        # Define category maximums
+        # Category maximums — calibrated for Senior Staff / Principal roles
+        # (impact & scope first). JSON field names are fixed; labels below
+        # reflect their repurposed meaning for this seniority.
         category_maxes = {
-            "open_source": 35,
-            "self_projects": 30,
-            "production": 25,
-            "technical_skills": 10,
+            "production": 40,
+            "technical_skills": 25,
+            "self_projects": 20,
+            "open_source": 15,
         }
 
-        # Open Source
-        if hasattr(evaluation.scores, "open_source") and evaluation.scores.open_source:
-            os_score = evaluation.scores.open_source
-            capped_score = min(os_score.score, category_maxes["open_source"])
-            print(f"🌐 Open Source:          {capped_score}/{os_score.max}")
-            print(f"   Evidence: {os_score.evidence}")
-            print()
-
-        # Self Projects
-        if (
-            hasattr(evaluation.scores, "self_projects")
-            and evaluation.scores.self_projects
-        ):
-            sp_score = evaluation.scores.self_projects
-            capped_score = min(sp_score.score, category_maxes["self_projects"])
-            print(f"🚀 Self Projects:        {capped_score}/{sp_score.max}")
-            print(f"   Evidence: {sp_score.evidence}")
-            print()
-
-        # Production Experience
+        # Scope & Production Impact (dominant axis)
         if hasattr(evaluation.scores, "production") and evaluation.scores.production:
             prod_score = evaluation.scores.production
             capped_score = min(prod_score.score, category_maxes["production"])
-            print(f"🏢 Production Experience: {capped_score}/{prod_score.max}")
+            print(f"🏢 Scope & Production Impact:      {capped_score}/{prod_score.max}")
             print(f"   Evidence: {prod_score.evidence}")
             print()
 
-        # Technical Skills
+        # Technical Depth & Breadth
         if (
             hasattr(evaluation.scores, "technical_skills")
             and evaluation.scores.technical_skills
         ):
             tech_score = evaluation.scores.technical_skills
             capped_score = min(tech_score.score, category_maxes["technical_skills"])
-            print(f"💻 Technical Skills:     {capped_score}/{tech_score.max}")
+            print(f"💻 Technical Depth & Breadth:      {capped_score}/{tech_score.max}")
             print(f"   Evidence: {tech_score.evidence}")
+            print()
+
+        # Engineering Projects & Systems Design
+        if (
+            hasattr(evaluation.scores, "self_projects")
+            and evaluation.scores.self_projects
+        ):
+            sp_score = evaluation.scores.self_projects
+            capped_score = min(sp_score.score, category_maxes["self_projects"])
+            print(f"🚀 Engineering Projects/Systems:   {capped_score}/{sp_score.max}")
+            print(f"   Evidence: {sp_score.evidence}")
+            print()
+
+        # Open Source & Technical Influence
+        if hasattr(evaluation.scores, "open_source") and evaluation.scores.open_source:
+            os_score = evaluation.scores.open_source
+            capped_score = min(os_score.score, category_maxes["open_source"])
+            print(f"🌐 Open Source & Tech Influence:   {capped_score}/{os_score.max}")
+            print(f"   Evidence: {os_score.evidence}")
             print()
 
     # Bonus Points

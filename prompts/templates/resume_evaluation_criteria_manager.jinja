@@ -1,0 +1,112 @@
+You are evaluating a resume for an **Engineering Manager / Director** position. This is a people-leadership and organizational-delivery role. The bar is the scope of teams and outcomes the candidate owns, their ability to multiply the output of others, and the technical judgment to set direction — NOT hands-on individual-contributor depth. Score the candidate against the criteria below.
+
+**MANDATORY: You MUST always fill ALL FOUR categories: production, technical_skills, self_projects, open_source.** (The JSON field names are fixed; their meaning for this role is defined below.)
+
+## CRITICAL FAIRNESS REQUIREMENTS
+**SCORES MUST NEVER DEPEND ON:**
+- Candidate's name, gender, or personal demographic information
+- College, university, or educational institution name
+- CGPA, GPA, or academic grades
+- City, location, or geographical information
+- Years of experience as a raw number, age, or career gaps
+- Any personal characteristics unrelated to leadership ability and demonstrated impact
+
+**EVALUATION MUST BE BASED ONLY ON:**
+- Scope of people/organizational leadership and the outcomes delivered
+- Ability to build, grow, and retain teams and to drive cross-functional execution
+- Technical judgment sufficient to set direction and oversee architecture
+- Initiative in building organizations, programs, and systems
+- Technical influence and community/industry presence
+
+## ROLE CONTEXT — what "manager/director" means here
+Evaluate for: ownership of teams and organizations (size, managing managers, hiring and org design); delivery of business-critical outcomes through others; cross-functional partnership and stakeholder management; sound technical direction and architecture oversight; and the ability to scale an organization. Hands-on personal coding/projects are a secondary signal here — they indicate technical credibility and initiative, but leadership scope and delivered outcomes dominate. Early-career markers (GSoC, Hacktoberfest, coursework, tutorial projects) are NOT relevant and must NOT move scores.
+
+## SCORING CRITERIA
+
+### Leadership Scope & Org Impact (0-45 points) — JSON field: `production`
+The dominant axis for this role. Assess the `work` section for the scope of people/org leadership and the outcomes delivered through teams.
+- **HIGH (34-45):** Led large or multi-team organizations (incl. managing managers), owned hiring and org design, and delivered business-critical outcomes through others. Clear evidence of scaling teams, driving cross-functional execution, and quantified results (reliability, cost, delivery velocity, revenue, headcount growth, retention).
+- **MEDIUM (20-33):** Managed a team or significant function with real delivery ownership; some quantified outcomes; growing leadership scope.
+- **LOW (7-19):** Tech-lead or first-line management with limited org scope, or strong IC work with only emerging leadership signals.
+- **VERY LOW (0-6):** No people-leadership or delivery-ownership evidence; purely individual contribution with no team scope.
+- Credit founding/co-founding, building teams or functions from scratch, and turnarounds as strong leadership-scope signals.
+- Reward *delivered outcomes through others* over title. Quantified org results outweigh a senior title with no evidence. A senior IC who shows direction-setting and mentorship but no team ownership should land LOW-to-MEDIUM, not HIGH.
+
+### Technical Judgment & Breadth (0-25 points) — JSON field: `technical_skills`
+Assess whether the candidate has the technical credibility to lead engineers and set direction — NOT hands-on coding depth. Use `skills`, `work`, and projects.
+- **HIGH (18-25):** Strong technical breadth across the relevant domains, evidence of sound architecture/technology decisions and direction-setting, and credibility to lead senior engineers. Stays technical enough to evaluate trade-offs.
+- **MEDIUM (11-17):** Solid technical foundation sufficient to manage the domain with some direction-setting evidence.
+- **LOW (1-10):** Thin technical evidence or a background that wouldn't establish credibility with the team being led.
+- Judge for *judgment and breadth to lead*, not depth of personal implementation. Deep hands-on skill is a plus but not the bar.
+
+### Initiative & Delivery (0-15 points) — JSON field: `self_projects`
+Assess initiative and the ability to build things end-to-end — programs, systems, or organizations driven from scratch — plus personal/side projects (the `projects` section and GitHub data) as a secondary signal of drive and hands-on credibility.
+- **HIGH (11-15):** Clear record of building significant programs/systems/teams from 0-to-1, and/or substantive personal engineering work showing initiative and technical credibility.
+- **MEDIUM (6-10):** Some demonstrated initiative or solid side projects.
+- **LOW (1-5):** Limited evidence of self-driven initiative beyond assigned work.
+- **ZERO (0):** No evidence of initiative or building.
+- Judge personal projects from README/documentation and architecture, not star counts. Do NOT over-penalize a thin personal-project section when org-delivery scope is strong — for a manager, delivery through teams matters more than personal repos.
+
+### Technical Influence & Community (0-15 points) — JSON field: `open_source`
+Assess influence beyond the candidate's own organization: thought leadership, talks, writing, open source, mentorship, hiring brand, and industry presence.
+- **HIGH (11-15):** Recognized external influence — conference talks, publications, widely-followed writing, maintainership of notable open source, or a strong record of upstream contributions and mentorship that shapes the broader community.
+- **MEDIUM (6-10):** Some external footprint — meaningful upstream open-source contributions, occasional speaking/writing, or visible community involvement.
+- **LOW (1-5):** Limited external presence; mostly internal influence.
+- **VERY LOW (0):** No external influence or community footprint.
+- Use the GitHub data: **merged PRs to repositories the candidate does NOT own are genuine upstream contributions** — weight them, and weight high-star targets more. Do NOT treat the absence of external influence as disqualifying — it caps this single category, nothing more.
+
+## BONUS POINTS (Maximum total: 20 points)
+Award for senior-leadership signals:
+- +3-5 for founder / co-founder / building an org or function from scratch
+- +2-4 for scaling teams/hiring at significant scale, or leading through a major transformation/turnaround
+- +2-4 for conference talks, published papers, or recognized industry thought leadership
+- +1-3 for high-quality technical/leadership writing (if blog data provided)
+- +1-2 for maintained external presence (open source, portfolio, community)
+**The total bonus cannot exceed 20 points.**
+
+## DEDUCTIONS
+Apply sparingly and only for substantive concerns at this level:
+- -2 to -5 for management/director *titles* with no evidence of team scope, org ownership, or delivered outcomes
+- -2 to -4 for a purely individual-contributor record presented for a leadership role with no people-leadership or delivery-ownership evidence
+- -1 to -3 for claimed outcomes with no supporting specifics
+Do NOT deduct for: thin personal projects, absence of open source, lack of hands-on coding depth, or student programs. These are not the bar for this role.
+
+## CRITICAL REQUIREMENTS
+1. Respond with ONLY the JSON structure below — no summary, no extra fields.
+2. Fill ALL FOUR score categories with the maxes shown.
+3. Provide concrete, evidence-based reasoning for each score.
+4. Do NOT change field names or structure.
+
+**IMPORTANT LIST CONSTRAINTS:**
+- key_strengths: 1-5 items
+- areas_for_improvement: 1-3 items
+
+**IMPORTANT SCORE CONSTRAINTS:**
+- Evidence fields cannot be empty
+- All category scores must be >= 0
+- **CATEGORY SCORE LIMITS** (cannot be exceeded):
+  - production (Leadership Scope & Org Impact): 0-45
+  - technical_skills (Technical Judgment & Breadth): 0-25
+  - self_projects (Initiative & Delivery): 0-15
+  - open_source (Technical Influence & Community): 0-15
+- Bonus points total must be <= 20
+- **OVERALL SCORE LIMIT**: total (categories + bonus - deductions) cannot exceed 120
+
+**RETURN ONLY THE SCORING EVALUATION IN THIS EXACT JSON STRUCTURE:**
+
+{
+    "scores": {
+        "open_source": {"score": 0, "max": 15, "evidence": "string"},
+        "self_projects": {"score": 0, "max": 15, "evidence": "string"},
+        "production": {"score": 0, "max": 45, "evidence": "string"},
+        "technical_skills": {"score": 0, "max": 25, "evidence": "string"}
+    },
+    "bonus_points": {"total": 0, "breakdown": "string"},
+    "deductions": {"total": 0, "reasons": "string"},
+    "key_strengths": ["strength1", "strength2", "strength3", "strength4", "strength5"],
+    "areas_for_improvement": ["improvement1", "improvement2", "improvement3"]
+}
+
+Resume to evaluate:
+
+{{ text_content }}

@@ -17,6 +17,7 @@ from transform import (
     convert_blog_data_to_text,
 )
 from config import DEVELOPMENT_MODE
+from profiles import get_active_profile
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,7 @@ def print_evaluation_results(
     """Print evaluation results in a readable format."""
     print("\n" + "=" * 80)
     print(f"📊 RESUME EVALUATION RESULTS FOR: {candidate_name}")
+    print(f"📋 Role profile: {get_active_profile()['label']}")
     print("=" * 80)
 
     if not evaluation:
@@ -76,52 +78,17 @@ def print_evaluation_results(
     print("-" * 60)
 
     if hasattr(evaluation, "scores") and evaluation.scores:
-        # Category maximums — calibrated for Senior Staff / Principal roles
-        # (impact & scope first). JSON field names are fixed; labels below
-        # reflect their repurposed meaning for this seniority.
-        category_maxes = {
-            "production": 40,
-            "technical_skills": 25,
-            "self_projects": 20,
-            "open_source": 15,
-        }
-
-        # Scope & Production Impact (dominant axis)
-        if hasattr(evaluation.scores, "production") and evaluation.scores.production:
-            prod_score = evaluation.scores.production
-            capped_score = min(prod_score.score, category_maxes["production"])
-            print(f"🏢 Scope & Production Impact:      {capped_score}/{prod_score.max}")
-            print(f"   Evidence: {prod_score.evidence}")
-            print()
-
-        # Technical Depth & Breadth
-        if (
-            hasattr(evaluation.scores, "technical_skills")
-            and evaluation.scores.technical_skills
-        ):
-            tech_score = evaluation.scores.technical_skills
-            capped_score = min(tech_score.score, category_maxes["technical_skills"])
-            print(f"💻 Technical Depth & Breadth:      {capped_score}/{tech_score.max}")
-            print(f"   Evidence: {tech_score.evidence}")
-            print()
-
-        # Engineering Projects & Systems Design
-        if (
-            hasattr(evaluation.scores, "self_projects")
-            and evaluation.scores.self_projects
-        ):
-            sp_score = evaluation.scores.self_projects
-            capped_score = min(sp_score.score, category_maxes["self_projects"])
-            print(f"🚀 Engineering Projects/Systems:   {capped_score}/{sp_score.max}")
-            print(f"   Evidence: {sp_score.evidence}")
-            print()
-
-        # Open Source & Technical Influence
-        if hasattr(evaluation.scores, "open_source") and evaluation.scores.open_source:
-            os_score = evaluation.scores.open_source
-            capped_score = min(os_score.score, category_maxes["open_source"])
-            print(f"🌐 Open Source & Tech Influence:   {capped_score}/{os_score.max}")
-            print(f"   Evidence: {os_score.evidence}")
+        # Categories (label, max, order) come from the active role profile,
+        # selected via ROLE_PROFILE. The four JSON field names are fixed; their
+        # meaning/weight is repurposed per profile (see profiles.py).
+        profile = get_active_profile()
+        for field, label, maximum in profile["categories"]:
+            category = getattr(evaluation.scores, field, None)
+            if not category:
+                continue
+            capped_score = min(category.score, maximum)
+            print(f"{label} {capped_score}/{category.max}")
+            print(f"   Evidence: {category.evidence}")
             print()
 
     # Bonus Points

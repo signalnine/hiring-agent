@@ -9,6 +9,8 @@ import os
 from typing import Dict, Optional
 from jinja2 import Environment, FileSystemLoader, Template
 
+from profiles import get_active_profile
+
 
 class TemplateManager:
     """
@@ -34,6 +36,9 @@ class TemplateManager:
 
     def _load_templates(self):
         """Load all available templates."""
+        # The evaluation criteria/system templates are role-profile specific
+        # (selected via ROLE_PROFILE); the section templates are shared.
+        profile = get_active_profile()
         template_files = {
             "basics": "basics.jinja",
             "work": "work.jinja",
@@ -43,8 +48,8 @@ class TemplateManager:
             "awards": "awards.jinja",
             "system_message": "system_message.jinja",
             "github_project_selection": "github_project_selection.jinja",
-            "resume_evaluation_criteria": "resume_evaluation_criteria.jinja",
-            "resume_evaluation_system_message": "resume_evaluation_system_message.jinja",
+            "resume_evaluation_criteria": profile["criteria_template"],
+            "resume_evaluation_system_message": profile["system_template"],
         }
 
         for section_name, filename in template_files.items():
